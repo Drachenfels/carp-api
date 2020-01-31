@@ -1,0 +1,2 @@
+include carp_api/data/*.png
+include carp_api/VERSION
