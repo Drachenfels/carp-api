@@ -1,0 +1,9 @@
+-r requirements.test.txt
+pylint>=2.0.1
+pep8>=1.7
+flake8>=3.5
+ipdb>=0.11
+# note about twine and keyring it's probably easier to install them system
+# wide, and deploy outside of v-env
+twine>=1.12.1
+keyring>=16.0.0
