@@ -5,4 +5,10 @@ this wrapper.
 
 from . import server_factory
 
-app = server_factory.create_app()
+app = None
+
+
+if __name__ == '__main__':
+    """Set app only if executed not imported.
+    """
+    app = server_factory.create_app()
