@@ -1,3 +1,4 @@
+import collections
 import importlib
 import logging
 
@@ -199,7 +200,7 @@ def register_routes(settings, app):
     # because each endpoint can force custom url lets check if given endpoint
     # was not already registered by something else. Otherwise first one is
     # getting through the post and it leads to ambiguity.
-    final_urls = {}
+    final_urls = collections.defaultdict(dict)
 
     for version, namespace, endpoints in final_routing:
         for name, instance in endpoints.items():
@@ -208,14 +209,19 @@ def register_routes(settings, app):
 
             new_url = instance.get_final_url(version, namespace)
 
-            if new_url in final_urls.keys():
-                raise exception.ConflictingUrlsError(
-                    "Url was already registered by {name}".format(
-                        name=final_urls[new_url]
+            for method in instance.methods:
+                if new_url in final_urls[method]:
+                    raise exception.ConflictingUrlsError(
+                        "Url [{method}] {url} of {new_endpoint} is "
+                        "conflicting with url "
+                        "[{method}] {url} of {old_endpoint}".format(
+                            method=method, url=new_url,
+                            new_endpoint=instance.get_final_name(),
+                            old_endpoint=final_urls[method][new_url]
+                        )
                     )
-                )
 
-            final_urls[new_url] = instance.get_final_name()
+                final_urls[method][new_url] = instance.get_final_name()
 
             app.add_url_rule(
                 new_url, name, instance
