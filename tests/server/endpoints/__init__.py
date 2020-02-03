@@ -41,3 +41,10 @@ class GetListOfTreesWithCustomUrl(GetListOfTrees):
 
     def get_final_url(self, version, namespace):
         return '/yolo/'
+
+
+class UberPong(endpoint.BaseEndpoint):
+    url = ''
+
+    def action(self):
+        return 'uber-pong'

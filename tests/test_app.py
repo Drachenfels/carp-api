@@ -77,6 +77,17 @@ def conflicted_server():
     os.environ['SIMPLE_SETTINGS'] = old_settings
 
 
+@pytest.fixture
+def override_pong():
+    old_settings = os.environ['SIMPLE_SETTINGS']
+
+    os.environ['SIMPLE_SETTINGS'] = 'tests.server.settings.pong_base'
+
+    yield
+
+    os.environ['SIMPLE_SETTINGS'] = old_settings
+
+
 @pytest.mark.end_to_end
 def test_app_is_working(default_server):
     """Simply check if we can build a server and send ping request using
@@ -117,3 +128,12 @@ def test_conflicting_urls_are_not_working(conflicted_server):
     """
     with pytest.raises(ValueError, match=r'.*ConflictingUrlsError.*'):
         _make_server(os.environ)
+
+
+@pytest.mark.end_to_end
+def test_uber_pong_app_is_working(override_pong):
+    """Default server with new implementation of pong endpoint.
+    """
+    response = _make_request('ping/')
+
+    assert response == 'uber-pong'
