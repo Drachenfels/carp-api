@@ -12,7 +12,7 @@ publish-test:
 
 	python3 setup.py sdist bdist_wheel
 
-	twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
+	twine upload --repository carp-api-test dist/* --verbose
 
 
 publish-production:
@@ -20,7 +20,7 @@ publish-production:
 
 	python3 setup.py sdist bdist_wheel
 
-	twine upload dist/*
+	twine upload --repository carp-api-prod dist/* --verbose
 
 
 .PHONY: tests
