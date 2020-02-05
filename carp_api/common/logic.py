@@ -8,9 +8,9 @@ def get_pong(version=None):
 
 
 def get_url_map(version=None):
-    func_list = collections.OrderedDict()
+    all_endpoints = []
 
-    prefix = '/{}'.format(version) if version else ''
+    prefix = f'/{version}' if version else ''
 
     for rule in current_app.url_map.iter_rules():
         if rule.endpoint == 'static':
@@ -24,8 +24,17 @@ def get_url_map(version=None):
         methods = endpoint.methods \
             if endpoint.methods else ["GET", "HEAD", "OPTIONS"]
 
-        key = "({}) {}".format(",".join(methods), rule.rule)
+        all_endpoints.append((
+            rule.rule,
+            "({})".format(",".join(methods)),
+            endpoint.short_documentation
+        ))
 
-        func_list[key] = endpoint.short_documentation
+    all_endpoints.sort()
 
-    return func_list
+    result = collections.OrderedDict()
+
+    for rule, methods, doc in all_endpoints:
+        result[f"{methods} {rule}"] = doc
+
+    return result

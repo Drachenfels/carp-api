@@ -1,4 +1,5 @@
 import pathlib
+import json
 
 from flask import request, current_app, make_response
 
@@ -27,12 +28,11 @@ class UrlMap(endpoint.BaseEndpoint):
     url = ''
     name = 'url_map'
 
-    # output_schema = output_schema.Map
-
     def action(self):  # pylint: disable=arguments-differ
-        func_list = logic.get_url_map(request.version)
+        result = logic.get_url_map(request.version)
 
-        return func_list
+        return make_response(
+            json.dumps(result), 200, {'Content-Type': 'application/json'})
 
 
 class ShutDown(endpoint.BaseEndpoint):
