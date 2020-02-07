@@ -21,6 +21,17 @@ class Ping(endpoint.BaseEndpoint):
 
         return resp
 
+    def get_short_documentation(self):
+        version = self.get_version()
+
+        if version:
+            return f'Returns pong if version {version} is working'
+
+        return f'Returns pong'
+
+    def get_long_documentation(self):
+        return self.get_short_documentation()
+
 
 class UrlMap(endpoint.BaseEndpoint):
     """All urls available on api.
@@ -34,27 +45,16 @@ class UrlMap(endpoint.BaseEndpoint):
         return make_response(
             json.dumps(result), 200, {'Content-Type': 'application/json'})
 
+    def get_short_documentation(self):
+        version = self.get_version()
 
-class ShutDown(endpoint.BaseEndpoint):
-    """ShutDown rouote, that terminates the server, expose it only for
-    development and testing environment, unless you like server restarts.
-    """
-    url = 'shutdown'
-    name = 'shutdown'
+        if version:
+            return f'Returns list of urls for version {version}'
 
-    methods = ['POST']
+        return f'Returns list of all urls'
 
-    def action(self):  # pylint: disable=arguments-differ
-        func = request.environ.get('werkzeug.server.shutdown')
-
-        if func is None:
-            raise RuntimeError('Not running with the Werkzeug Server')
-
-        # pylint: disable=protected-access
-        signal.app_shutdown.send(current_app._get_current_object())
-        # pylint: enable=protected-access
-
-        func()
+    def get_long_documentation(self):
+        return self.get_short_documentation()
 
 
 class FavIcon(endpoint.BaseEndpoint):
@@ -79,3 +79,35 @@ class FavIcon(endpoint.BaseEndpoint):
         resp.headers['content-type'] = 'image/vnd.microsoft.icon'
 
         return resp
+
+    def get_short_documentation(self):
+        return 'Responds with .png favicon for a project.'
+
+    def get_long_documentation(self):
+        return (
+            'Responds with .png favicon for a project. Useful when api is '
+            'opened with a browser. It will trigger favicon call in the '
+            'background.'
+        )
+
+
+class ShutDown(endpoint.BaseEndpoint):
+    """ShutDown rouote, that terminates the server, expose it only for
+    development and testing environment, unless you like server restarts.
+    """
+    url = 'shutdown'
+    name = 'shutdown'
+
+    methods = ['POST']
+
+    def action(self):  # pylint: disable=arguments-differ
+        func = request.environ.get('werkzeug.server.shutdown')
+
+        if func is None:
+            raise RuntimeError('Not running with the Werkzeug Server')
+
+        # pylint: disable=protected-access
+        signal.app_shutdown.send(current_app._get_current_object())  # NOQA
+        # pylint: enable=protected-access
+
+        func()
