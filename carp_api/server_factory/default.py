@@ -227,7 +227,9 @@ def register_routes(settings, app):
 
                 final_urls[method][new_url] = instance.get_final_name()
 
-            app.add_url_rule(new_url, name, instance)
+            full_name = f"{version}-{namespace}-{name}"
+
+            app.add_url_rule(new_url, full_name, instance)
 
 
 def register_loggers(settings, app):
