@@ -16,7 +16,7 @@ def get_url_map(version=None):
 
         endpoint = current_app.view_functions[rule.endpoint]
 
-        if version and version != endpoint.get_version():
+        if version and str(version) != endpoint.get_version():
             continue
 
         methods = endpoint.methods \
