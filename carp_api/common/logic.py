@@ -27,7 +27,7 @@ def get_url_map(version=None):
         all_endpoints.append((
             rule.rule,
             "({})".format(",".join(methods)),
-            endpoint.short_documentation
+            endpoint.get_short_documentation()
         ))
 
     all_endpoints.sort()
@@ -35,6 +35,6 @@ def get_url_map(version=None):
     result = collections.OrderedDict()
 
     for rule, methods, doc in all_endpoints:
-        result[f"{methods} {rule}"] = doc
+        result[f"{rule} {methods}"] = doc
 
     return result

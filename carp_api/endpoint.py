@@ -47,35 +47,27 @@ class BaseEndpoint:
         'PATCH': 202,
     }
 
-    @property
-    def short_documentation(self):
-        """This will be used to auto-generate short description for a
-        self-documentation
+    # Version is set when adding an instance of the endpoint to the Flask app
+    _version = None
+
+    # Namespace is set when adding an instance of the enpoint to the Flask app
+    _namespace = None
+
+    def get_short_documentation(self):
+        """Method used to generate short, one line description what endpoints
+        does.
         """
-        message = (
-            "[Endpoint has no docstring nor attribute/property "
-            "short_documentation]"
+        return (
+            "[Endpoint does not implement method get_short_documentation]"
         )
 
-        if not self.__doc__:
-            return message
-
-        return self.__doc__.split('\n')[0].strip()
-
-    @property
-    def long_documentation(self):
-        """This will be used to auto-generate long, description documentation
-        for puprose of doc autogeneration.
+    def get_long_documentation(self):
+        """Method used to generate content rich documentation ie. open-api
+        machinery.
         """
-        message = (
-            "[Endpoint has no docstring nor attribute/property "
-            "long_documentation]"
+        return (
+            "[Endpoint does not implement method get_long_documentation]"
         )
-
-        if not self.__doc__:
-            return message
-
-        return self.__doc__
 
     def action(self, *args, **kwargs):  # pylint: disable=unused-argument
         raise exception.EndpointNotImplementedError(
@@ -87,7 +79,7 @@ class BaseEndpoint:
     def get_final_name(self):
         return helper.get_endpoint_name(self)
 
-    def get_final_url(self, version, namespace, host=None):
+    def get_final_url(self, host=None):
         """Builds final url.
 
         Because given endpoint may or may not exist in many contexts (aka
@@ -96,16 +88,38 @@ class BaseEndpoint:
         """
         url_instance = url.Url()
 
-        if version:
-            url_instance.add(version)
+        if self.get_version():
+            url_instance.add(self.get_version())
 
-        if namespace:
-            url_instance.add(namespace)
+        if self.get_namespace():
+            url_instance.add(self.get_namespace())
 
         url_instance.add(self.url)
 
         return url_instance.as_full_url(
             trailing_slash=self.trailing_slash, host=host)
+
+    def set_namespace(self, namespace):
+        """Method is called shortly before enpoint is registered with Flask.
+
+        Used old-school setter/getter approach in order to make it easier to
+        customise behaviour of the framework for specific use cases.
+        """
+        self._namespace = namespace
+
+    def get_namespace(self):
+        return self._namespace
+
+    def set_version(self, version):
+        """Method is called shortly before enpoint is registered with Flask.
+
+        Used old-school setter/getter approach in order to make it easier to
+        customise behaviour of the framework for specific use cases.
+        """
+        self._version = version
+
+    def get_version(self):
+        return self._version
 
     @property
     def request(self):
