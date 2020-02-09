@@ -1,5 +1,4 @@
 import flask
-import python_schema
 
 from carp_api import exception, url, request_parser, misc_helper
 from carp_api.routing import helper
@@ -8,12 +7,6 @@ from carp_api.routing import helper
 class BaseEndpoint:
     # if set to None, will default to GET, HEAD and OPTIONS
     methods = ['GET', 'OPTIONS']
-
-    # if set, given object will be constructed on entry
-    input_schema = None
-
-    # if set, given object will be returned
-    output_schema = None
 
     # under which url this endpoint should be available ie user or user/details
     url = None
@@ -129,29 +122,23 @@ class BaseEndpoint:
         return isinstance(other, BaseEndpoint) and \
             self.get_final_name() == other.get_final_name()
 
-    def parse_input(self, payload, args, kwargs):
-        """Convert payload into schema and then make it first argument on args
-        list.
+    def parse_input_payload(self, payload):
+        """Method allows to override how any payload that comes with request is
+        processed before being passed to method `action`.
+
+        Note: CarpApi dropped preference in any serialisation library, thus no
+        default implementation is provided.
         """
-        instance = self.input_schema()  # pylint: disable=not-callable
+        return payload
 
-        try:
-            instance.loads(payload)
-        except python_schema.exception.PayloadError as err:
-            raise exception.PayloadError(err)
+    def parse_output_payload(self, payload):
+        """Method allows to override how any data returned from endpoint's
+        `action` method is parsed to the outside world.
 
-        return [instance] + args, kwargs
-
-    def parse_output(self, payload):
-        instance = self.output_schema()  # pylint: disable=not-callable
-
-        try:
-            instance.loads(payload)
-
-        except python_schema.exception.PayloadError as err:
-            raise exception.ResponseContentError(err)
-
-        return instance.dumps()  # in future add ctx={'user': request.user}
+        Note: CarpApi dropped preference in any serialisation library, thus no
+        default implementation is provided.
+        """
+        return payload
 
     def get_payload(self):
         content_type = self.request.headers.get('Content-Type', '')
@@ -197,15 +184,16 @@ class BaseEndpoint:
 
             payload = self.get_payload()
 
-            if self.input_schema:
-                args, kwargs = self.parse_input(payload, args, kwargs)
+            if payload:
+                payload = self.parse_input_payload(payload)
+
+                args = [payload] + args
 
             # pylint: disable=assignment-from-no-return
             result = self.action(*args, **kwargs)
             # pylint: enable=assignment-from-no-return
 
-            if self.output_schema:
-                result = self.parse_output(result)
+            result = self.parse_output_payload(result)
 
         result = self.post_action(result)
 
