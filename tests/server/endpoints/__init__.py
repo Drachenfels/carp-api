@@ -27,7 +27,7 @@ class GetListOfCarsWithCustomUrl(GetListOfCars):
             'HappyCar', 'SadCar', 'YoloCar',
         ]
 
-    def get_final_url(self, version, namespace):
+    def get_final_url(self, host=None):
         return '/yolo/'
 
 
@@ -39,12 +39,12 @@ class GetListOfTreesWithCustomUrl(GetListOfTrees):
             'BigTree', 'SmallTree', 'Shrub',
         ]
 
-    def get_final_url(self, version, namespace):
+    def get_final_url(self, host=None):
         return '/yolo/'
 
 
 class UberPong(endpoint.BaseEndpoint):
-    url = ''
+    url = '/ping/'
 
     def action(self):
         return 'uber-pong'
