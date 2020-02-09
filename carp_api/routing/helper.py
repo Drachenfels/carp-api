@@ -57,3 +57,36 @@ def get_endpoint_name(obj):
     )
 
     return getattr(obj, 'name', default_name)
+
+
+def get_endpoint_url(endpoint, version=None, namespace=None):
+    """Function helps to generate final url for an endpoint.
+
+    Endpoint is registered only on app launch so this function allows
+    overriding of version/namespace if we know that `get_endpoint_url` will be
+    called in specific context.
+    """
+    if isinstance(endpoint, type):
+        endpoint = endpoint()
+
+    if version:
+        old_version = endpoint.get_version()
+
+        endpoint.set_version(version)
+
+    if namespace:
+        old_namespace = endpoint.get_namespace()
+
+        endpoint.set_namespace(namespace)
+
+    url = endpoint.get_final_url()
+
+    # endpoint may or may not be a reference, thus we need to recover
+    # version/namespace if custom was given
+    if version:
+        endpoint.set_version(old_version)
+
+    if namespace:
+        endpoint.set_namespace(old_namespace)
+
+    return url
