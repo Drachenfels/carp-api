@@ -67,21 +67,25 @@ def rich_server():
 
 
 @pytest.fixture
-def conflicted_server():
+def override_pong():
     old_settings = os.environ['SIMPLE_SETTINGS']
 
-    os.environ['SIMPLE_SETTINGS'] = 'tests.server.settings.conflicted_base'
+    os.environ['SIMPLE_SETTINGS'] = 'tests.server.settings.pong_base'
+
+    proc = _make_server(os.environ)
 
     yield
 
     os.environ['SIMPLE_SETTINGS'] = old_settings
 
+    proc.kill()
+
 
 @pytest.fixture
-def override_pong():
+def conflicted_server():
     old_settings = os.environ['SIMPLE_SETTINGS']
 
-    os.environ['SIMPLE_SETTINGS'] = 'tests.server.settings.pong_base'
+    os.environ['SIMPLE_SETTINGS'] = 'tests.server.settings.conflicted_base'
 
     yield
 
