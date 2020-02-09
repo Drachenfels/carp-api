@@ -217,9 +217,8 @@ class VersionList:
 
                 for endpoint in namespace:
                     endpoint_name = helper.get_endpoint_name(endpoint)
-
-                    url = endpoint.get_final_url(
-                        version=version.as_str(), namespace=namespace.name)
+                    url = helper.get_endpoint_url(
+                        endpoint, version=version, namespace=namespace)
 
                     methods = '|'.join(endpoint.methods)
 
